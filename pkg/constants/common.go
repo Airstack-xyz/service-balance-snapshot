@@ -1,0 +1,52 @@
+package constants
+
+const (
+	HEALTH_ENDPOINT                                         = "/health"
+	X_FORWARDED_FOR                                         = "x-forwarded-for"
+	OPTIONS                                                 = "options"
+	STATUS_OK                                               = "Ok"
+	ENVIRONMENT                                             = "env"
+	DEV_ENV                                                 = "dev"
+	PROD_ENV                                                = "prod"
+	TEST_ENV                                                = "test"
+	MONGODB_URI                                             = "MONGODB_URI"
+	ORIGIN_HEADER                                           = "origin"
+	ALLOWED_ORIGINS                                         = "ALLOWED_ORIGINS"
+	CONTEXT_TIMEOUT_IN_SECONDS                              = 30
+	IPFS_URI_SEPARATOR                                      = ","
+	SERVER_PORT                                             = "port"
+	EMPTY_STRING                                            = ""
+	KAFKA_ENDPOINTS                                         = "KAFKA_ENDPOINTS"
+	OPENSEA_CONTRACT                                        = "0x495f947276749Ce646f68AC8c248420045cb7b5e"
+	OPENSEA_URI_PREFIX                                      = "https://api.opensea.io/api/v1/metadata/0x495f947276749Ce646f68AC8c248420045cb7b5e/"
+	MAINNET_MULTI_READ_CALL_CONTRACT                        = "0x08f50712ebca2ebe369381edeea070b3bf742ed0"
+	CONTRACT_NAME                                           = "name"
+	CONTRACT_SYMBOL                                         = "symbol"
+	CONTRACT_DECIMALS                                       = "decimals"
+	CONTRACT_TOTAL_SUPPLY                                   = "totalSupply"
+	CONTRACT_URI                                            = "contractURI"
+	CONTRACT_TOKEN_URI                                      = "tokenURI"
+	CONTRACT_IS_ERC165                                      = "isERC165"
+	CONTRACT_IS_ERC721                                      = "isERC721"
+	CONTRACT_IS_ERC1155                                     = "isERC1155"
+	CONTRACT_IS_FFFFF                                       = "isFFFFF"
+	ABI_DIR                                                 = "ABI_DIR"
+	CHAIN_ID_ETHEREUM                                       = "1"
+	AMOUNT_ZERO                                             = "0"
+	IDEMPOTENCYKEY                                          = "idempotencyKey"
+	POLYGON_MULTI_READ_CALL_CONTRACT                        = "0xabbed815ee89006cfdcaa97b664bf59f607923f2"
+	CHAIN_ID_POLYGON                                        = "137"
+	CACHE_TTL                                               = "CACHE_TTL"
+	DEFAULT_CACHE_TTL                                       = 1000000 // 1000 sec
+	CHAINID                                                 = "CHAINID"
+	CONSUMERGROUP_START_OFFSET                              = "CONSUMERGROUP_START_OFFSET"
+	REDIS_URI                                               = "REDIS_URI"
+	ETH_MAINNET_MULTI_READ_CALL_CONTRACT_DEPLOYED_BLOCK     = 15936151
+	POLYGON_MAINNET_MULTI_READ_CALL_CONTRACT_DEPLOYED_BLOCK = 40216255
+	BACKFILL_FROM_BLOCK_NUMBER                              = "BACKFILL_FROM_BLOCK_NUMBER"
+	BACKFILL_TILL_BLOCK_NUMBER                              = "BACKFILL_TILL_BLOCK_NUMBER"
+	MAX_TIME_BALANCE_SNAPSHOT                               = 10413792000
+	ZERO_ADDRESS                                            = "0x0000000000000000000000000000000000000000"
+	ENS_ADDRESS                                             = "0x57f1887a8bf19b14fc0df6fd9b2acc9af147ea85"
+	ENS_MAINNET_TOKEN_METADATA_URL                          = "https://metadata.ens.domains/mainnet/"
+)
