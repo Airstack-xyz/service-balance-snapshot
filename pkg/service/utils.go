@@ -15,7 +15,6 @@ import (
 	"github.com/airstack-xyz/service-balance-snapshot/pkg/constants"
 	"github.com/airstack-xyz/service-balance-snapshot/pkg/dto"
 	"github.com/airstack-xyz/service-balance-snapshot/pkg/model"
-	"github.com/airstack-xyz/service-balance-snapshot/pkg/utils"
 	"golang.org/x/exp/slices"
 )
 
@@ -170,7 +169,7 @@ func GetTransferFromTransferData(transferMessage *dto.TokenTransfer) (*model.Tok
 		return nil, err
 	}
 
-	transferType := utils.GetTransferType(transferMessage)
+	transferType := GetTransferType(transferMessage)
 	transfer := &model.TokenTransfer{
 		Blockchain:      blockchain,
 		ChainId:         transferMessage.ChainId,

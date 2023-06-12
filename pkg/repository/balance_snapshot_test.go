@@ -15,6 +15,7 @@ import (
 	"github.com/airstack-xyz/lib/logger/testing/mocks"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -38,7 +39,8 @@ func TestCreateSnapshot(t *testing.T) {
 	logger := new(mocks.ILogger)
 	logger.On("Info", "successfully connected to MongoDB!").Return().Once()
 	logger.On("Info", "mongoDB connection is closed!").Return().Once()
-
+	logger.On("Debugf", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return()
+	logger.On("Errorf", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return()
 	db := initDB(logger)
 	defer func() {
 		_ = db.Disconnect(context.Background())
@@ -47,6 +49,8 @@ func TestCreateSnapshot(t *testing.T) {
 	balanceSnapshotRepo := NewBalanceSnapshotRepository(db.DB, logger)
 
 	ctx := context.Background()
+
+	t.Setenv("CHAINID", "1")
 
 	t.Run("nil snapshot - err", func(t *testing.T) {
 		err := balanceSnapshotRepo.CreateSnapshot(ctx, nil)
@@ -71,6 +75,8 @@ func TestGetSnapshotByBlockNumber(t *testing.T) {
 	logger.On("Info", "successfully connected to MongoDB!").Return().Once()
 	logger.On("Info", "mongoDB connection is closed!").Return().Once()
 
+	logger.On("Debugf", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return()
+
 	db := initDB(logger)
 	defer func() {
 		_ = db.Disconnect(context.Background())
@@ -80,6 +86,8 @@ func TestGetSnapshotByBlockNumber(t *testing.T) {
 	balanceSnapshotCollection := db.DB.Database(constants.MONGO_TOKEN_DB).Collection(constants.BALANCE_SNAPSHOT_COLLECTION)
 
 	ctx := context.Background()
+
+	t.Setenv("CHAINID", "1")
 
 	t.Run("should return snapshot", func(t *testing.T) {
 		testBalanceSnapshotRecord := getTestBalanceSnapshotRecord()
@@ -121,12 +129,14 @@ func TestFindFirstNearestHighSnapshotRecord(t *testing.T) {
 	logger := new(mocks.ILogger)
 	logger.On("Info", "successfully connected to MongoDB!").Return().Once()
 	logger.On("Info", "mongoDB connection is closed!").Return().Once()
+	logger.On("Debugf", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return()
 
 	db := initDB(logger)
 	defer func() {
 		_ = db.Disconnect(context.Background())
 	}()
 
+	t.Setenv(constants.CHAINID, "1")
 	balanceSnapshotRepo := NewBalanceSnapshotRepository(db.DB, logger)
 	balanceSnapshotCollection := db.DB.Database(constants.MONGO_TOKEN_DB).Collection(constants.BALANCE_SNAPSHOT_COLLECTION)
 
@@ -155,12 +165,14 @@ func TestUpdateSnapshotById(t *testing.T) {
 	logger := new(mocks.ILogger)
 	logger.On("Info", "successfully connected to MongoDB!").Return().Once()
 	logger.On("Info", "mongoDB connection is closed!").Return().Once()
+	logger.On("Debugf", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return()
 
 	db := initDB(logger)
 	defer func() {
 		_ = db.Disconnect(context.Background())
 	}()
 
+	t.Setenv(constants.CHAINID, "1")
 	balanceSnapshotRepo := NewBalanceSnapshotRepository(db.DB, logger)
 	balanceSnapshotCollection := db.DB.Database(constants.MONGO_TOKEN_DB).Collection(constants.BALANCE_SNAPSHOT_COLLECTION)
 
@@ -179,9 +191,8 @@ func TestUpdateSnapshotById(t *testing.T) {
 		updateMap["endBlockTimestamp"] = expectedUpdatedEndBlockTimestamp
 
 		noOfRecordsModified, err := balanceSnapshotRepo.UpdateSnapshotById(ctx, uuid.NewString(), updateMap)
-		assert.NotNil(t, err, "err should not be nil")
-		assert.Equal(t, 0, noOfRecordsModified, "no of updated snapshots object shouldn't be 0")
-		assert.Equal(t, err, mongo.ErrNoDocuments, "err is not equal")
+		assert.Nil(t, err, "err should be nil")
+		assert.Equal(t, int64(0), noOfRecordsModified, "no of updated snapshots object should be 0")
 
 		// clean up the test data
 		cleanUpErr := balanceSnapshotCollection.Drop(ctx)
@@ -196,8 +207,7 @@ func TestUpdateSnapshotById(t *testing.T) {
 
 		noOfRecordsModified, err := balanceSnapshotRepo.UpdateSnapshotById(ctx, uuid.NewString(), nil)
 		assert.NotNil(t, err, "err should not be nil")
-		assert.Nil(t, noOfRecordsModified, "updated record should be nil")
-		assert.Equal(t, 0, noOfRecordsModified, "no of updated snapshots object should be 0")
+		assert.Equal(t, int64(0), noOfRecordsModified, "no of updated snapshots object should be 0")
 		assert.Equal(t, err, errors.New("updateFields map shouldn't be nil"), "err is not equal")
 
 		// clean up the test data
@@ -219,7 +229,7 @@ func TestUpdateSnapshotById(t *testing.T) {
 
 		noOfRecordsModified, err := balanceSnapshotRepo.UpdateSnapshotById(ctx, testBalanceSnapshotRecord.ID, updateMap)
 		assert.Nil(t, err)
-		assert.Equal(t, 1, noOfRecordsModified, "no of updated snapshots object shouldn't be 0")
+		assert.Equal(t, int64(1), noOfRecordsModified, "no of updated snapshots object shouldn't be 0")
 
 		// clean up the test data
 		cleanUpErr := balanceSnapshotCollection.Drop(ctx)
@@ -229,9 +239,9 @@ func TestUpdateSnapshotById(t *testing.T) {
 
 func getTestBalanceSnapshotRecord() model.BalanceSnapshot {
 	return model.BalanceSnapshot{
-		ID:                  "test-id",
-		Blockchain:          "0xc40ae8a63dfa35694dbbbd1ba8b8d1ad72738a97",
-		Owner:               "ethereum",
+		ID:                  uuid.NewString(),
+		Blockchain:          "ethereum",
+		Owner:               "0xc40ae8a63dfa35694dbbbd1ba8b8d1ad72738a97",
 		ChainID:             "1",
 		TokenAddress:        "0xdedd13be2d81a9afff28b4b45bd23ecfb9948dbc",
 		TokenType:           constants.TOKEN_TYPE_ERC20,

@@ -8,7 +8,6 @@ import (
 	"github.com/airstack-xyz/lib/rpc"
 	"github.com/airstack-xyz/service-balance-snapshot/pkg/constants"
 	"github.com/airstack-xyz/service-balance-snapshot/pkg/model"
-	"github.com/airstack-xyz/service-balance-snapshot/pkg/utils"
 )
 
 type RPCStatus struct {
@@ -47,7 +46,7 @@ func NewRPCService(
 	}
 }
 
-func (r *RPCService) ProcessTransfer(ctx context.Context, transfer *model.TokenTransfer, token model.Token) ([]*model.TokenBalanceOutput, error) {
+func (r *RPCService) ProcessTokenBalanceRpcData(ctx context.Context, transfer *model.TokenTransfer, token model.Token) ([]*model.TokenBalanceOutput, error) {
 	from := model.TokenBalanceOutput{
 		TokenType:       token.Type,
 		ContractAddress: token.Address,
@@ -116,9 +115,9 @@ func (r *RPCService) ProcessTransfer(ctx context.Context, transfer *model.TokenT
 		toBalance, _ := r.GetERC20BlockBalanceOfToAddress(transfer)
 		to.Balance = toBalance
 		if token.Decimals != nil {
-			formattedFromAddressBalance, _ := utils.FormatAmount(fromBalance, *token.Decimals)
+			formattedFromAddressBalance, _ := FormatAmount(fromBalance, *token.Decimals)
 			from.FormattedBalance = &formattedFromAddressBalance
-			formattedToAddressBalance, _ := utils.FormatAmount(toBalance, *token.Decimals)
+			formattedToAddressBalance, _ := FormatAmount(toBalance, *token.Decimals)
 			to.FormattedBalance = &formattedToAddressBalance
 		}
 		// remove tokenId field from transfer if tokenId field has some value

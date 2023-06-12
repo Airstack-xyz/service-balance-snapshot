@@ -158,7 +158,7 @@ func (s *BalanceSnapshotService) GetTokenDataFromTransferEvent(ctx context.Conte
 	}
 	if token.Type != constants.TOKEN_TYPE_BASE_TOKEN {
 		if isNewToken {
-			rpcInstance := rpc.NewRPC([]string{os.Getenv(constants.CHAINID)}, nil)
+			rpcInstance := rpc.NewRPC([]string{os.Getenv(constants.CHAINID)}, s.logger)
 			defer rpcInstance.Close()
 
 			rpcService := NewRPCService(token, rpcInstance, s.logger)
@@ -331,7 +331,7 @@ func (s *BalanceSnapshotService) GetTokenBalances(ctx context.Context, token *mo
 		s.logger.Errorf(ctx, "Error while making rpc call: %+v\n", err.Error())
 	}
 
-	return rpcService.ProcessTransfer(ctx, transfer, *token)
+	return rpcService.ProcessTokenBalanceRpcData(ctx, transfer, *token)
 
 }
 

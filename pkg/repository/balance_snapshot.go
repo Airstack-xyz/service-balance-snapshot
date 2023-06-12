@@ -72,7 +72,7 @@ func (r *BalanceSnapshotRepository) CreateSnapshot(ctx context.Context, snapshot
 	_, err := balanceSnapshotCollection.InsertOne(childctx, snapshot)
 
 	if err != nil {
-		r.logger.Error("BalanceSnapshotRepository.CreateSnapshot: error while creating balanceSnapshot - %v", err.Error())
+		r.logger.Errorf(ctx, "BalanceSnapshotRepository.CreateSnapshot: error while creating balanceSnapshot - %v", err.Error())
 	}
 	return err
 }

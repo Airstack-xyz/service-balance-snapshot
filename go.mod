@@ -5,16 +5,19 @@ go 1.19
 require (
 	github.com/airstack-xyz/database-library v0.0.26
 	github.com/airstack-xyz/kafka v0.6.6
-	github.com/airstack-xyz/lib/cache v0.0.0-20230602230033-e4d4c4988000
+	github.com/airstack-xyz/lib/cache v0.0.0-20230612142017-8994120c0658
 	github.com/airstack-xyz/lib/constants v0.0.0-20230602230033-e4d4c4988000
 	github.com/airstack-xyz/lib/distributed-lock v0.0.0-20230602230033-e4d4c4988000
 	github.com/airstack-xyz/lib/logger v0.0.0-20230602230033-e4d4c4988000
 	github.com/airstack-xyz/lib/rpc v0.0.0-20230531062319-04bd3ebec2e0
+	github.com/alicebob/miniredis/v2 v2.30.0
 	github.com/gin-contrib/pprof v1.4.0
 	github.com/gin-gonic/gin v1.8.1
+	github.com/go-redis/redis v6.15.9+incompatible
 	github.com/google/uuid v1.3.0
 	github.com/prometheus/client_golang v1.14.0
 	github.com/stretchr/testify v1.8.4
+	github.com/test-go/testify v1.1.4
 	go.mongodb.org/mongo-driver v1.11.6
 	golang.org/x/exp v0.0.0-20230206171751-46f607a40771
 
@@ -23,6 +26,7 @@ require (
 require (
 	github.com/StackExchange/wmi v0.0.0-20180116203802-5d049714c4a6 // indirect
 	github.com/airstack-xyz/lib/utils v0.0.0-20230130104215-e3479aab5eae // indirect
+	github.com/alicebob/gopher-json v0.0.0-20200520072559-a9ecdc9d1d3a // indirect
 	github.com/aws/aws-sdk-go-v2 v1.17.4 // indirect
 	github.com/aws/aws-sdk-go-v2/config v1.18.12 // indirect
 	github.com/aws/aws-sdk-go-v2/credentials v1.13.12 // indirect
@@ -98,6 +102,7 @@ require (
 	github.com/xdg-go/scram v1.1.2 // indirect
 	github.com/xdg-go/stringprep v1.0.4 // indirect
 	github.com/youmark/pkcs8 v0.0.0-20201027041543-1326539a0a0a // indirect
+	github.com/yuin/gopher-lua v0.0.0-20220504180219-658193537a64 // indirect
 	go.uber.org/atomic v1.10.0 // indirect
 	go.uber.org/multierr v1.9.0 // indirect
 	go.uber.org/zap v1.24.0 // indirect

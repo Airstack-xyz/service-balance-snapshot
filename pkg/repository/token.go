@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"github.com/airstack-xyz/lib/logger"
@@ -27,6 +28,9 @@ func NewTokensRepository(db *mongo.Client, logger logger.ILogger) *TokensReposit
 
 func (r *TokensRepository) GetToken(ctx context.Context, id string) (*model.Token, error) {
 	defer utils.RecordFunctionExecutionTime(ctx, "token.GetToken", r.logger)()
+	if len(id) <= 0 {
+		return nil, errors.New("token id can't be empty")
+	}
 	childctx, cancel := context.WithTimeout(ctx, constants.CONTEXT_TIMEOUT_IN_SECONDS*time.Second)
 	defer cancel()
 	tokenCollection := r.db.Database(getDB(constants.MONGO_TOKEN_DB)).Collection(constants.TOKEN)
@@ -37,4 +41,16 @@ func (r *TokensRepository) GetToken(ctx context.Context, id string) (*model.Toke
 		return nil, err
 	}
 	return &token, nil
+}
+
+// Not used anywhere. Just for the GetToken tests keeping it here.
+func (r *TokensRepository) CreateToken(ctx context.Context, token *model.Token) error {
+	if token == nil {
+		return errors.New("token can't be nil")
+	}
+	childctx, cancel := context.WithTimeout(ctx, constants.CONTEXT_TIMEOUT_IN_SECONDS*time.Second)
+	defer cancel()
+	tokenCollection := r.db.Database(getDB(constants.MONGO_TOKEN_DB)).Collection(constants.TOKEN)
+	_, err := tokenCollection.InsertOne(childctx, token)
+	return err
 }
