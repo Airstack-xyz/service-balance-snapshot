@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"time"
+
 	"github.com/airstack-xyz/service-balance-snapshot/pkg/constants"
 	"github.com/airstack-xyz/service-balance-snapshot/pkg/model"
 	"github.com/airstack-xyz/service-balance-snapshot/pkg/utils"
@@ -13,7 +14,6 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
-	
 )
 
 type BalanceSnapshotRepository struct {
@@ -141,4 +141,3 @@ func (r *BalanceSnapshotRepository) UpdateSnapshotById(ctx context.Context, id s
 	}
 	return updateResult.ModifiedCount, nil
 }
-

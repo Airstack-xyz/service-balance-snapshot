@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/airstack-xyz/database-library/pkg/database"
+	kafkaConstants "github.com/airstack-xyz/kafka/pkg/common/constants"
 	"github.com/airstack-xyz/kafka/pkg/consumer"
 	"github.com/airstack-xyz/kafka/pkg/producer"
 	"github.com/airstack-xyz/lib/cache"
@@ -22,6 +23,8 @@ import (
 	"github.com/airstack-xyz/service-balance-snapshot/pkg/metrics"
 	"github.com/airstack-xyz/service-balance-snapshot/pkg/repository"
 	"github.com/airstack-xyz/service-balance-snapshot/pkg/service"
+
+	"github.com/airstack-xyz/service-balance-snapshot/pkg/utils"
 	"github.com/gin-contrib/pprof"
 	"github.com/gin-gonic/gin"
 
@@ -105,8 +108,7 @@ func main() {
 	//tokenTopicName := service.GetTopicName(kafkaConstants.TOPIC_TOKEN)
 	consumerConfigMap := make(map[string]*consumer.Consumer)
 
-	// transferTopicName := utils.GetTopicName(kafkaConstants.TOPIC_TRANSFER)
-	transferTopicName := "test-topic"
+	transferTopicName := utils.GetTopicName(kafkaConstants.TOPIC_TRANSFER)
 	consumerConfigMap[transferTopicName] = &consumer.Consumer{
 		GroupID:     consumerGroupId,
 		HandlerFunc: balanceSnapshotService.ProcessKafkaEventTokenTransfer,

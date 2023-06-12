@@ -11,53 +11,50 @@ import (
 
 func (r *RPCService) PrepareBackfillTokenBalanceRPCCallData(transfer *model.TokenTransfer) {
 	tokenId := transfer.TokenId
-	if tokenId == nil || len(*tokenId) == 0 {
-		tokenId = &transfer.Amount
-	}
 
 	if transfer.TokenType == constants.TOKEN_TYPE_ERC1155 {
 		if len(transfer.TokenIds) > 0 {
 			// This is a batch transfer
 			for _, tokenId := range transfer.TokenIds {
 				if transfer.To != constants.ZERO_ADDRESS {
-					r.PrepareERC1155BackfillTokenBalanceRPCCallData(transfer, transfer.To, tokenId)
+					r.PrepareERC1155TokenBalanceRPCCallData(transfer, transfer.To, tokenId)
 				}
 				if transfer.From != constants.ZERO_ADDRESS {
-					r.PrepareERC1155BackfillTokenBalanceRPCCallData(transfer, transfer.From, tokenId)
+					r.PrepareERC1155TokenBalanceRPCCallData(transfer, transfer.From, tokenId)
 				}
 			}
 		} else {
 			// This is a single erc 1155 transfer
 			if transfer.To != constants.ZERO_ADDRESS {
-				r.PrepareERC1155BackfillTokenBalanceRPCCallData(transfer, transfer.To, *tokenId)
+				r.PrepareERC1155TokenBalanceRPCCallData(transfer, transfer.To, *tokenId)
 			}
 
 			if transfer.From != constants.ZERO_ADDRESS {
-				r.PrepareERC1155BackfillTokenBalanceRPCCallData(transfer, transfer.From, *tokenId)
+				r.PrepareERC1155TokenBalanceRPCCallData(transfer, transfer.From, *tokenId)
 			}
 		}
 	} else {
 		// This can be erc20 or erc721 transfers
 		if r.Token == nil {
-			r.PrepareERC20BackfillTokenBalanceRPCCallData(transfer, transfer.To)
-			r.PrepareERC20BackfillTokenBalanceRPCCallData(transfer, transfer.From)
-			r.PrepareERC721BackfillTokenBalanceRPCCallData(transfer, transfer.To, *tokenId)
-			r.PrepareERC721BackfillTokenBalanceRPCCallData(transfer, transfer.From, *tokenId)
+			r.PrepareERC20TokenBalanceRPCCallData(transfer, transfer.To)
+			r.PrepareERC20TokenBalanceRPCCallData(transfer, transfer.From)
+			r.PrepareERC721TokenBalanceRPCCallData(transfer, transfer.To, *tokenId)
+			r.PrepareERC721TokenBalanceRPCCallData(transfer, transfer.From, *tokenId)
 		} else {
 			token := r.Token
 			if token.Type == constants.TOKEN_TYPE_ERC20 {
-				r.PrepareERC20BackfillTokenBalanceRPCCallData(transfer, transfer.To)
-				r.PrepareERC20BackfillTokenBalanceRPCCallData(transfer, transfer.From)
+				r.PrepareERC20TokenBalanceRPCCallData(transfer, transfer.To)
+				r.PrepareERC20TokenBalanceRPCCallData(transfer, transfer.From)
 			} else if token.Type == constants.TOKEN_TYPE_ERC721 {
-				r.PrepareERC721BackfillTokenBalanceRPCCallData(transfer, transfer.To, *tokenId)
-				r.PrepareERC721BackfillTokenBalanceRPCCallData(transfer, transfer.From, *tokenId)
+				r.PrepareERC721TokenBalanceRPCCallData(transfer, transfer.To, *tokenId)
+				r.PrepareERC721TokenBalanceRPCCallData(transfer, transfer.From, *tokenId)
 			}
 		}
 	}
 
 }
 
-func (r *RPCService) PrepareERC20BackfillTokenBalanceRPCCallData(transfer *model.TokenTransfer, ownerAddress string) {
+func (r *RPCService) PrepareERC20TokenBalanceRPCCallData(transfer *model.TokenTransfer, ownerAddress string) {
 	chainId := transfer.ChainId
 	tokenAddress := transfer.TokenAddress
 	// For balance snapshot
@@ -70,7 +67,7 @@ func (r *RPCService) PrepareERC20BackfillTokenBalanceRPCCallData(transfer *model
 	}
 }
 
-func (r *RPCService) PrepareERC721BackfillTokenBalanceRPCCallData(transfer *model.TokenTransfer, ownerAddress string, tokenId string) {
+func (r *RPCService) PrepareERC721TokenBalanceRPCCallData(transfer *model.TokenTransfer, ownerAddress string, tokenId string) {
 	chainId := transfer.ChainId
 	tokenAddress := transfer.TokenAddress
 
@@ -85,7 +82,7 @@ func (r *RPCService) PrepareERC721BackfillTokenBalanceRPCCallData(transfer *mode
 
 }
 
-func (r *RPCService) PrepareERC1155BackfillTokenBalanceRPCCallData(transfer *model.TokenTransfer, ownerAddress string, tokenId string) {
+func (r *RPCService) PrepareERC1155TokenBalanceRPCCallData(transfer *model.TokenTransfer, ownerAddress string, tokenId string) {
 	chainId := transfer.ChainId
 	tokenAddress := transfer.TokenAddress
 
@@ -168,46 +165,6 @@ func (r *RPCService) GetERC20BlockBalanceOfFromAddress(transfer *model.TokenTran
 	return balance.String(), nil
 }
 
-func (r *RPCService) GetERC1155BalanceOfToAddress(transfer *model.TokenTransfer, tokenId string) (string, error) {
-	if transfer.To == constants.ZERO_ADDRESS {
-		return "0", nil
-	}
-	chainId := transfer.ChainId
-	tokenAddress := transfer.TokenAddress
-
-	id := r.rpcInstance.GetToken1155BalanceCallDataIdentifier(chainId, tokenAddress, transfer.To, tokenId, nil)
-	tokenRpcData := r.rpcBookKeeping.balance[id]
-	if tokenRpcData == nil || tokenRpcData.rpcData.Value == nil {
-		return "", errors.New("no rpc data available")
-	}
-
-	balance, ok := tokenRpcData.rpcData.Value.(*big.Int)
-	if !ok {
-		err := errors.New("unable to convert to string")
-		return "", err
-	}
-	return balance.String(), nil
-}
-func (r *RPCService) GetERC1155BalanceOfFromAddress(transfer *model.TokenTransfer, tokenId string) (string, error) {
-	if transfer.From == constants.ZERO_ADDRESS {
-		return "0", nil
-	}
-	chainId := transfer.ChainId
-	tokenAddress := transfer.TokenAddress
-
-	id := r.rpcInstance.GetToken1155BalanceCallDataIdentifier(chainId, tokenAddress, transfer.From, tokenId, nil)
-	tokenRpcData := r.rpcBookKeeping.balance[id]
-	if tokenRpcData == nil || tokenRpcData.rpcData.Value == nil {
-		return "", errors.New("no rpc data available")
-	}
-
-	balance, ok := tokenRpcData.rpcData.Value.(*big.Int)
-	if !ok {
-		err := errors.New("unable to convert to string")
-		return "", err
-	}
-	return balance.String(), nil
-}
 func (r *RPCService) GetERC1155BlockBalanceOfToAddress(transfer *model.TokenTransfer, tokenId string) (string, error) {
 	if transfer.To == constants.ZERO_ADDRESS {
 		return "0", nil

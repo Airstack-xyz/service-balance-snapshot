@@ -212,17 +212,9 @@ func (s *BalanceSnapshotService) processSnapshot(ctx context.Context, transfer *
 		mutexName := "mutex-snap-" + fmt.Sprintf("%s-%s-%s-%s", balance.AccountAddress, balance.ContractAddress, balance.TokenType, balance.TokenId)
 		var funcErr error
 		toBeExecuted := func() {
-			var (
-				tokenId         string
-				formattedAmount *float64
-			)
+			var tokenId string
 			if token.Type != constants.TOKEN_TYPE_ERC20 {
-				tokenId = *transfer.TokenId
-			}
-
-			if token.Type == constants.TOKEN_TYPE_ERC20 {
-				fmtAmount, _ := FormatAmount(balance.Balance, *token.Decimals)
-				formattedAmount = &fmtAmount
+				tokenId = balance.TokenId
 			}
 
 			snapshot, err := s.balanceSnapshotRepo.GetSnapshotByBlockNumber(ctx, transfer.ChainId, balance.AccountAddress, balance.ContractAddress, tokenId, uint(transfer.BlockNumber))
@@ -254,10 +246,10 @@ func (s *BalanceSnapshotService) processSnapshot(ctx context.Context, transfer *
 						StartBlockTimestamp: transfer.BlockTimestamp,
 						EndBlockTimestamp:   endTimestamp,
 						Amount:              balance.Balance,
-						FormattedAmount:     formattedAmount,
+						FormattedAmount:     balance.FormattedBalance,
 					}
 					if token.Type != constants.TOKEN_TYPE_ERC20 {
-						newSnapshot.TokenId = *transfer.TokenId
+						newSnapshot.TokenId = balance.TokenId
 					}
 					if err := s.balanceSnapshotRepo.CreateSnapshot(ctx, &newSnapshot); err != nil {
 						funcErr = err
@@ -295,13 +287,13 @@ func (s *BalanceSnapshotService) processSnapshot(ctx context.Context, transfer *
 					StartBlockTimestamp: transfer.BlockTimestamp,
 					EndBlockTimestamp:   endTimestamp,
 					Amount:              balance.Balance,
-					FormattedAmount:     formattedAmount,
+					FormattedAmount:     balance.FormattedBalance,
 					UpdatedAt:           time.Now().UTC(),
 					CreatedAt:           time.Now().UTC(),
 				}
 
 				if token.Type != constants.TOKEN_TYPE_ERC20 {
-					newSnapshot.TokenId = *transfer.TokenId
+					newSnapshot.TokenId = balance.TokenId
 				}
 
 				var writeModels []mongo.WriteModel

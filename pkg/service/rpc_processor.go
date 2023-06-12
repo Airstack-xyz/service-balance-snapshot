@@ -52,37 +52,62 @@ func (r *RPCService) ProcessTransfer(ctx context.Context, transfer *model.TokenT
 		TokenType:       token.Type,
 		ContractAddress: token.Address,
 		AccountAddress:  transfer.From,
-		TokenId:         transfer.ID,
 	}
 	to := model.TokenBalanceOutput{
 		TokenType:       token.Type,
 		ContractAddress: token.Address,
 		AccountAddress:  transfer.To,
-		TokenId:         transfer.ID,
+	}
+
+	if transfer.TokenId != nil {
+		from.TokenId, to.TokenId = *transfer.TokenId, *transfer.TokenId
 	}
 
 	if transfer.TokenType == constants.TOKEN_TYPE_ERC1155 {
-		// From balance
-		fromBalance, _ := r.GetERC1155BlockBalanceOfFromAddress(transfer, *transfer.TokenId)
-		from.Balance = fromBalance
-		formattedFromAddressBalance, _ := strconv.ParseFloat(fromBalance, 64)
-		from.FormattedBalance = &formattedFromAddressBalance
-		// To balance
-		toBalance, _ := r.GetERC1155BlockBalanceOfToAddress(transfer, *transfer.TokenId)
-		to.Balance = toBalance
-		formattedToAddressBalance, _ := strconv.ParseFloat(toBalance, 64)
-		to.FormattedBalance = &formattedToAddressBalance
+		if len(transfer.TokenIds) > 0 {
+			var tokenBalanceOutput []*model.TokenBalanceOutput
+			for _, tokenId := range transfer.TokenIds {
+				// From balance
+				fromBalanceOfCurrentToken := from
+				fromBalanceOfCurrentToken.TokenId = tokenId
+				fromBalance, _ := r.GetERC1155BlockBalanceOfFromAddress(transfer, tokenId)
+				fromBalanceOfCurrentToken.Balance = fromBalance
+				formattedFromAddressBalance, _ := strconv.ParseFloat(fromBalance, 64)
+				fromBalanceOfCurrentToken.FormattedBalance = &formattedFromAddressBalance
+				// To balance
+				toBalanceOfCurrentToken := to
+				toBalanceOfCurrentToken.TokenId = tokenId
+				toBalance, _ := r.GetERC1155BlockBalanceOfToAddress(transfer, tokenId)
+				toBalanceOfCurrentToken.Balance = toBalance
+				formattedToAddressBalance, _ := strconv.ParseFloat(toBalance, 64)
+				toBalanceOfCurrentToken.FormattedBalance = &formattedToAddressBalance
+
+				tokenBalanceOutput = append(tokenBalanceOutput, &fromBalanceOfCurrentToken, &toBalanceOfCurrentToken)
+			}
+			return tokenBalanceOutput, nil
+		} else {
+			// From balance
+			fromBalance, _ := r.GetERC1155BlockBalanceOfFromAddress(transfer, *transfer.TokenId)
+			from.Balance = fromBalance
+			formattedFromAddressBalance, _ := strconv.ParseFloat(fromBalance, 64)
+			from.FormattedBalance = &formattedFromAddressBalance
+			// To balance
+			toBalance, _ := r.GetERC1155BlockBalanceOfToAddress(transfer, *transfer.TokenId)
+			to.Balance = toBalance
+			formattedToAddressBalance, _ := strconv.ParseFloat(toBalance, 64)
+			to.FormattedBalance = &formattedToAddressBalance
+		}
 	} else if transfer.TokenType == constants.TOKEN_TYPE_ERC721 {
 		// From balance
 		fromBalance, _ := r.GetERC721BlockBalanceOfFromAddress(transfer, *transfer.TokenId)
 		from.Balance = fromBalance
 		formattedFromAddressBalance, _ := strconv.ParseFloat(fromBalance, 64)
-		transfer.FormattedFromAddressBalance = &formattedFromAddressBalance
+		from.FormattedBalance = &formattedFromAddressBalance
 		// To balance
 		toBalance, _ := r.GetERC721BlockBalanceOfToAddress(transfer, *transfer.TokenId)
 		to.Balance = toBalance
 		formattedToAddressBalance, _ := strconv.ParseFloat(toBalance, 64)
-		transfer.FormattedToAddressBalance = &formattedToAddressBalance
+		to.FormattedBalance = &formattedToAddressBalance
 	} else if transfer.TokenType == constants.TOKEN_TYPE_ERC20 {
 		// From balance
 		fromBalance, _ := r.GetERC20BlockBalanceOfFromAddress(transfer)
