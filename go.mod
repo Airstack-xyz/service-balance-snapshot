@@ -13,9 +13,9 @@ require (
 	github.com/alicebob/miniredis/v2 v2.30.0
 	github.com/gin-contrib/pprof v1.4.0
 	github.com/gin-gonic/gin v1.8.1
-	github.com/go-redis/redis v6.15.9+incompatible
 	github.com/google/uuid v1.3.0
 	github.com/prometheus/client_golang v1.14.0
+	github.com/redis/go-redis/v9 v9.0.2
 	github.com/stretchr/testify v1.8.4
 	github.com/test-go/testify v1.1.4
 	go.mongodb.org/mongo-driver v1.11.6
@@ -84,7 +84,6 @@ require (
 	github.com/prometheus/client_model v0.3.0 // indirect
 	github.com/prometheus/common v0.39.0 // indirect
 	github.com/prometheus/procfs v0.9.0 // indirect
-	github.com/redis/go-redis/v9 v9.0.2 // indirect
 	github.com/segmentio/kafka-go v0.4.38 // indirect
 	github.com/segmentio/kafka-go/sasl/aws_msk_iam_v2 v0.0.0-20230127181734-172fe7593625 // indirect
 	github.com/shirou/gopsutil v3.21.4-0.20210419000835-c7a38de76ee5+incompatible // indirect

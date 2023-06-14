@@ -9,7 +9,7 @@ import (
 	"github.com/airstack-xyz/service-balance-snapshot/pkg/model"
 )
 
-func (r *RPCService) PrepareBackfillTokenBalanceRPCCallData(transfer *model.TokenTransfer) {
+func (r *RPCService) PrepareTokenBalanceRPCCallData(transfer *model.TokenTransfer) {
 	tokenId := transfer.TokenId
 
 	if transfer.TokenType == constants.TOKEN_TYPE_ERC1155 {

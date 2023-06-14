@@ -3,15 +3,18 @@ package service
 import (
 	"fmt"
 	"testing"
+	"time"
 
 	"github.com/airstack-xyz/kafka/pkg/common/schema"
 	"github.com/airstack-xyz/service-balance-snapshot/pkg/constants"
+	"github.com/airstack-xyz/service-balance-snapshot/pkg/model"
+	"github.com/airstack-xyz/service-balance-snapshot/pkg/utils"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestCreateTransferMessageFromSingleTransfer(t *testing.T) {
 	t.Run("Testing CreateTransferMessageFromSingleTransfer", func(t *testing.T) {
-		singleTransfer := getSampleSingleTransfer()
+		singleTransfer := getSampleERC20Transfer()
 		transferMessage := CreateTransferMessageFromSingleTransfer(&singleTransfer)
 		assert.NotNil(t, transferMessage)
 		assert.Equal(t, singleTransfer.TransactionHash, transferMessage.TransactionHash)
@@ -20,7 +23,7 @@ func TestCreateTransferMessageFromSingleTransfer(t *testing.T) {
 
 func TestCreateTransferMessageFromBatchTransfer(t *testing.T) {
 	t.Run("Testing CreateTransferMessageFromBatchTransfer", func(t *testing.T) {
-		batchTransfer := getSampleBatchTransfer()
+		batchTransfer := getSampleERC1155BatchTransfer()
 		transferMessage := CreateTransferMessageFromBatchTransfer(&batchTransfer)
 		assert.NotNil(t, transferMessage)
 		assert.Equal(t, batchTransfer.TransactionHash, transferMessage.TransactionHash)
@@ -87,14 +90,14 @@ func TestMaxInt(t *testing.T) {
 func TestGetTransferType(t *testing.T) {
 
 	t.Run("Normal Transfer", func(t *testing.T) {
-		transfer := getSampleSingleTransfer()
+		transfer := getSampleERC20Transfer()
 		trasferMessage := CreateTransferMessageFromSingleTransfer(&transfer)
 		transferType := GetTransferType(trasferMessage)
 		assert.Equal(t, "TRANSFER", transferType)
 	})
 
 	t.Run("Mint Transfer", func(t *testing.T) {
-		transfer := getSampleSingleTransfer()
+		transfer := getSampleERC20Transfer()
 		//Making from as ZERO address to test mint transfer
 		transfer.From = constants.ZERO_ADDRESS
 		trasferMessage := CreateTransferMessageFromSingleTransfer(&transfer)
@@ -103,7 +106,7 @@ func TestGetTransferType(t *testing.T) {
 	})
 
 	t.Run("Burn Transfer", func(t *testing.T) {
-		transfer := getSampleSingleTransfer()
+		transfer := getSampleERC20Transfer()
 		//Making to as ZERO address to test Burn transfer
 		transfer.To = constants.ZERO_ADDRESS
 		trasferMessage := CreateTransferMessageFromSingleTransfer(&transfer)
@@ -115,7 +118,7 @@ func TestGetTransferType(t *testing.T) {
 
 func TestGetTransferFromTransferData(t *testing.T) {
 	t.Run("get transfer model from transfer message", func(t *testing.T) {
-		transfer := getSampleSingleTransfer()
+		transfer := getSampleERC20Transfer()
 		trasferMessage := CreateTransferMessageFromSingleTransfer(&transfer)
 		transferModel, err := GetTransferFromTransferData(trasferMessage)
 		assert.Nil(t, err)
@@ -125,7 +128,7 @@ func TestGetTransferFromTransferData(t *testing.T) {
 	})
 
 	t.Run("wrong chain ID", func(t *testing.T) {
-		transfer := getSampleSingleTransfer()
+		transfer := getSampleERC20Transfer()
 		transfer.ChainId = "100101"
 		trasferMessage := CreateTransferMessageFromSingleTransfer(&transfer)
 		transferModel, err := GetTransferFromTransferData(trasferMessage)
@@ -135,7 +138,7 @@ func TestGetTransferFromTransferData(t *testing.T) {
 	})
 }
 
-func getSampleSingleTransfer() schema.TokenTransfer {
+func getSampleERC20Transfer() schema.TokenTransfer {
 	return schema.TokenTransfer{
 		TransactionHash: "0x1459c136ca47579c9201c711989d5bd1346b62ece2e35169a8fa6197cb9af1ff",
 		LogIndex:        12,
@@ -155,7 +158,27 @@ func getSampleSingleTransfer() schema.TokenTransfer {
 	}
 }
 
-func getSampleBatchTransfer() schema.TokenTransferBatch {
+func getSampleERC20Token() model.Token {
+	return model.Token{
+		ID:                 "10xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+		Blockchain:         "ethereum",
+		Address:            "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+		ChainId:            "1",
+		Name:               "Wrapped Ether",
+		Symbol:             "WETH",
+		Type:               "ERC20",
+		TotalSupply:        "",
+		Decimals:           utils.Ptr(uint64(18)),
+		LastTransferBlock:  17399294,
+		LastTransferHash:   "0x1459c136ca47579c9201c711989d5bd1346b62ece2e35169a8fa6197cb9af1ff",
+		CurrentHolderCount: 0,
+		TransferCount:      0,
+		CreatedAt:          time.Now(),
+		UpdatedAt:          time.Now(),
+	}
+}
+
+func getSampleERC1155BatchTransfer() schema.TokenTransferBatch {
 	return schema.TokenTransferBatch{
 		TransactionHash: "0x669fda6a3b14c006c65591ee9600d05c2dea139589dc7cf489e1eab083a4e7c5",
 		LogIndex:        141,
@@ -178,5 +201,22 @@ func getSampleBatchTransfer() schema.TokenTransferBatch {
 		TokenType:      "ERC1155",
 		BlockNumber:    17461068,
 		BlockTimestamp: 1686537529,
+	}
+}
+
+func getSampleERC1155Token() model.Token {
+	return model.Token{
+		ID:                 "10xc36cf0cfcb5d905b8b513860db0cfe63f6cf9f5c",
+		Blockchain:         "ethereum",
+		Address:            "0xc36cf0cfcb5d905b8b513860db0cfe63f6cf9f5c",
+		ChainId:            "1",
+		Type:               "ERC1155",
+		TotalSupply:        "",
+		LastTransferBlock:  17475358,
+		LastTransferHash:   "0x169eddb449c1194052af6f3add525184a6cdb93ce4d70a3dff54cc43278ff7a8",
+		CurrentHolderCount: 0,
+		TransferCount:      0,
+		CreatedAt:          time.Now(),
+		UpdatedAt:          time.Now(),
 	}
 }

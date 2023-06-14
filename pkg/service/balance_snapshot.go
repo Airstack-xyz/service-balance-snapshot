@@ -107,6 +107,9 @@ func (s *BalanceSnapshotService) ProcessKafkaEventTokenTransfer(ctx context.Cont
 func (s *BalanceSnapshotService) ProcessTokenTransfer(ctx context.Context, transferTokenData *dto.TokenTransfer) error {
 	defer utils.RecordFunctionExecutionTime(ctx, "ProcessTokenTransfer", s.logger)()
 
+	if !shouldProcess(s.backfillEndBlockNoAt, &transferTokenData.BlockNumber) {
+		return nil
+	}
 	transfer, err := GetTransferFromTransferData(transferTokenData)
 	if err != nil {
 		s.logger.Errorf(ctx, "ProcessTokenTransfer.GetTransferFromTransferData error: %v", err)
@@ -319,13 +322,14 @@ func (s *BalanceSnapshotService) processSnapshot(ctx context.Context, transfer *
 	}
 	return nil
 }
+
 func (s *BalanceSnapshotService) GetTokenBalances(ctx context.Context, token *model.Token, transfer *model.TokenTransfer) ([]*model.TokenBalanceOutput, error) {
 	rpcInstance := rpc.NewRPC([]string{os.Getenv(constants.CHAINID)}, nil)
 	defer rpcInstance.Close()
 
 	rpcService := NewRPCService(token, rpcInstance, s.logger)
 
-	rpcService.PrepareBackfillTokenBalanceRPCCallData(transfer)
+	rpcService.PrepareTokenBalanceRPCCallData(transfer)
 
 	if err := rpcService.rpcInstance.Call(ctx, rpcService.rpcCallData); err != nil {
 		s.logger.Errorf(ctx, "Error while making rpc call: %+v\n", err.Error())
