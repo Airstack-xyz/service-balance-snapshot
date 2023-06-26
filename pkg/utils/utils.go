@@ -2,6 +2,8 @@ package utils
 
 import (
 	"context"
+	"crypto/md5"
+	"encoding/hex"
 	"errors"
 	"log"
 	"os"
@@ -63,4 +65,13 @@ func GetBlockchainFromChainId(chainId *string) (string, error) {
 		return "", err
 	}
 	return blockchainName, nil
+}
+
+func GenerateMD5HashedID(args ...string) string {
+	var finalKey string
+	for _, arg := range args {
+		finalKey = finalKey + arg
+	}
+	hash := md5.Sum([]byte(finalKey))
+	return hex.EncodeToString(hash[:])
 }

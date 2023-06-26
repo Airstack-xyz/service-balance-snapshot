@@ -24,7 +24,6 @@ import (
 	"github.com/airstack-xyz/service-balance-snapshot/pkg/repository"
 	repo "github.com/airstack-xyz/service-balance-snapshot/pkg/repository"
 	"github.com/airstack-xyz/service-balance-snapshot/pkg/utils"
-	"github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 )
@@ -214,6 +213,11 @@ func (s *BalanceSnapshotService) processSnapshot(ctx context.Context, transfer *
 	for _, balance := range balances {
 		mutexName := "mutex-snap-" + fmt.Sprintf("%s-%s-%s-%s", balance.AccountAddress, balance.ContractAddress, balance.TokenType, balance.TokenId)
 		var funcErr error
+
+		if balance.Balance == "0" || balance.Balance == "" {
+			continue
+		}
+
 		toBeExecuted := func() {
 			var tokenId string
 			if token.Type != constants.TOKEN_TYPE_ERC20 {
@@ -238,7 +242,7 @@ func (s *BalanceSnapshotService) processSnapshot(ctx context.Context, transfer *
 					}
 					//Insert one
 					newSnapshot := model.BalanceSnapshot{
-						ID:                  uuid.NewString(),
+						ID:                  utils.GenerateMD5HashedID(balance.AccountAddress, balance.ContractAddress, fmt.Sprint(transfer.BlockNumber)),
 						Owner:               balance.AccountAddress,
 						ChainID:             transfer.ChainId,
 						Blockchain:          transfer.Blockchain,
@@ -279,7 +283,7 @@ func (s *BalanceSnapshotService) processSnapshot(ctx context.Context, transfer *
 				endTimestamp = snapshot.EndBlockTimestamp
 
 				newSnapshot := model.BalanceSnapshot{
-					ID:                  uuid.NewString(),
+					ID:                  utils.GenerateMD5HashedID(balance.AccountAddress, balance.ContractAddress, fmt.Sprint(transfer.BlockNumber)),
 					Owner:               balance.AccountAddress,
 					ChainID:             transfer.ChainId,
 					Blockchain:          transfer.Blockchain,
